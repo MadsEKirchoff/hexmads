@@ -13,9 +13,10 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
   },
   "devDependencies": {
+    "@iconify/tailwind": "^0.1.4",
     "@sveltejs/adapter-vercel": "^4.0.3",
-    "@sveltejs/kit": "^2.0.6",
-    "@sveltejs/vite-plugin-svelte": "^3.0.1",
+    "@sveltejs/kit": "^2.5.2",
+    "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.23",
     "svelte": "^4.2.8",
@@ -23,10 +24,14 @@
     "tailwindcss": "^3.3.2",
     "turbo": "^1.9.3",
     "typescript": "^5.0.4",
-    "vite": "^5.0.10"
+    "unplugin-icons": "^0.18.5",
+    "vite": "^5.1.4"
   },
   "dependencies": {
     "@vercel/blob": "^0.16.1",
-    "dotenv-expand": "^10.0.0"
+    "clsx": "^2.1.0",
+    "dotenv-expand": "^10.0.0",
+    "framer-motion": "^11.0.8",
+    "tailwind-merge": "^2.2.1"
   }
 }

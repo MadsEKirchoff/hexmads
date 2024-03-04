@@ -4,13 +4,23 @@
 
   const hexSize = 80;
   const hexMargin = 1;
+
+  const hexColor = (i:number) => {
+    switch(i % 5) {
+      case 0: return 'bg-red-900';
+      case 1: return 'bg-green-900';
+      case 2: return 'bg-blue-900';
+      case 3: return 'bg-yellow-900';
+      case 4: return 'bg-gray-600';
+      case 5: return 'bg-white';}
+  }
 </script>
 
 <main class="relative flex-col items-center justify-center">
   <section class="hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;">
     {#each Array(hexRows) as _, y}
       {#each Array(hexColumns) as _, x}
-      <span class="hex {x % 2 ? 'bg-red-100' : 'bg-blue-300'}" class:oddLineStart={y % 2 && x === 0} >
+      <span class="hex {hexColor(x)}" class:oddLineStart={y % 2 && x === 0} >
         <!-- <span class=""> -->
           <!-- <img src="blob.svg" alt="Blob"  /> -->
           <!-- </span> -->
