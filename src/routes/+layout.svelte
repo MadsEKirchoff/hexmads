@@ -7,6 +7,7 @@
   <!-- https://ui.aceternity.com/components/tailwindcss-buttons -->
   <nav class="flex justify-center space-x-8 py-4">
     <Button><a href="/" class="">Kort</a></Button>
+
     <Button><a href="/gallery">Hexgalleri</a></Button>
   </nav>
   <slot>
