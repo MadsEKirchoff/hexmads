@@ -18,5 +18,8 @@
     "titleBar.inactiveBackground": "#13048f99",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#13048f"
+  "peacock.color": "#13048f",
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode",
+  },
 }

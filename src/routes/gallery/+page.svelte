@@ -1,10 +1,18 @@
 <script lang="ts">
-  import { put, list } from '@vercel/blob'
+  import { put, list, type ListBlobResult } from '@vercel/blob'
   import Button from '$lib/Button.svelte'
   import { enhance } from '$app/forms'
+  import { TrashBinOutline } from 'flowbite-svelte-icons';
+
   export let form
   export let data
-    import UploadIcon from '$lib/UploadIcon.svelte';
+
+  import UploadIcon from '$lib/UploadIcon.svelte';
+
+  // $: newImage = async () => {
+  //   let bloos = Array(await data.blobList)
+  //   bloos = [form?.uploaded, ...bloos]
+  // }
 
   let file: File | null = null
 
@@ -104,20 +112,32 @@
 
   <!-- ICONS: https://icon-sets.iconify.design/ -->
   <h2 class="mt-8 mb-6 text-xl font-semibold">Ukategoriserede billeder</h2>
-  <div class="flex max-w-screen gap-4">
-    {#await data.images}
+  <div class="flex max-w-screen gap-4 flex-wrap justify-center px-8">
+    {#await data.blobList}
       <p>Loading...</p>
-    {:then data}
-    {#each data.blobs as item}
-        <div class="relative p-4 bg-white rounded-xl group border">
-          <img src={item.url} alt="blob" class="max-h-44" >
-          <div class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-70 transition-opacity bg-white"/>
-          <div class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
-            <span class="icon-[material-symbols--delete-outline]"></span>
-            <UploadIcon></UploadIcon>
+    {:then blobList}
+      {#each blobList.blobs as blob}
+          <div class="relative
+          p-4 bg-white rounded-xl group border">
+            <img src={blob.url} alt="blob" class="max-h-44" >
+            <div class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-70 transition-opacity bg-white"/>
+            <div class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+              <button>
+
+                <TrashBinOutline class="w-10 h-10"
+                  on:click={async (e) => {
+                    blobList.blobs = blobList.blobs.filter((b) => b.url !== blob.url)
+                    await fetch(`/blob`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(blob)
+                    })
+                  }}
+                />
+              </button>
+            </div>
           </div>
-        </div>
-    {/each}
+      {/each}
     {:catch error}
       <p>{error.message}</p>
     {/await}

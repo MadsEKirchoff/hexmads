@@ -1,13 +1,16 @@
 import { error } from '@sveltejs/kit'
-import { put, list } from '@vercel/blob'
+import { put, list, del } from '@vercel/blob'
 import { BLOB_READ_WRITE_TOKEN } from '$env/static/private'
 
 export async function load() {
-  const blobPromise = list({ token: BLOB_READ_WRITE_TOKEN })
+  // return {  blobs: await list({ token: BLOB_READ_WRITE_TOKEN })}
+  // const a = await list({ token: BLOB_READ_WRITE_TOKEN })
+  // console.log(`🚀 > load > a:`, a)
+
   return {
-    nothing: [],
-    images: await blobPromise
-	}
+    hello: 'world',
+    blobList: await list({ token: BLOB_READ_WRITE_TOKEN })
+  }
 }
 
 export const actions = {
@@ -24,12 +27,5 @@ export const actions = {
       token: BLOB_READ_WRITE_TOKEN,
     })
     return { uploaded: url }
-  },
-  listImages: async ({ params }) => {
-    const { blobs } = await list({ token: BLOB_READ_WRITE_TOKEN })
-    return Response.json(blobs);
-  },
-  deleteImage: async ({ params }) => {
-    return await del(url, { token: BLOB_READ_WRITE_TOKEN})
   }
 }

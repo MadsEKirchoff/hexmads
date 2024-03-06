@@ -34,6 +34,7 @@
 <style>
 .hexGrid {
   --f: calc(var(--hexSize) * 1.732 + 4 * var(----hexMargin) - 1px);
+  --widthRatio: calc(195 / 170);
   white-space: nowrap;
   font-size: 0; /* disable white space between inline block element */
 }

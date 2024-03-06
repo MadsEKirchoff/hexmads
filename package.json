@@ -13,14 +13,17 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
   },
   "devDependencies": {
-    "@iconify/tailwind": "^0.1.4",
     "@sveltejs/adapter-vercel": "^4.0.5",
     "@sveltejs/kit": "^2.5.2",
     "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "autoprefixer": "^10.4.18",
+    "flowbite": "^2.3.0",
+    "flowbite-svelte": "^0.44.24",
+    "flowbite-svelte-icons": "^1.4.1",
     "postcss": "^8.4.35",
     "svelte": "^4.2.12",
     "svelte-check": "^3.6.6",
+    "svelte-motion": "^0.12.2",
     "tailwindcss": "^3.4.1",
     "turbo": "^1.12.4",
     "typescript": "^5.3.3",
