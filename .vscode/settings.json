@@ -19,7 +19,14 @@
     "titleBar.inactiveForeground": "#e7e7e799"
   },
   "peacock.color": "#13048f",
+  "editor.formatOnSave": true,
+  "svelte.plugin.svelte.format.config.svelteIndentScriptAndStyle": false,
+  "svelte.plugin.svelte.format.config.svelteStrictMode": true,
+  "svelte.plugin.svelte.enable": true,
+  "svelte.enable-ts-plugin": true,
   "[svelte]": {
-    "editor.defaultFormatter": "svelte.svelte-vscode",
+    "editor.defaultFormatter": "svelte.svelte-vscode"
   },
+  "editor.formatOnSaveMode": "file",
+  "notebook.formatOnSave.enabled": true,
 }
