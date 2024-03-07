@@ -48,7 +48,7 @@
     </div>
   {/if}
 
-  <div class="overflow-auto max-h-full pt-4 pb-12 flex-grow flex-1">
+  <div class="overflow-auto max-h-full pt-4 pb-12  flex-grow flex-1">
     <slot/>
   </div>
 

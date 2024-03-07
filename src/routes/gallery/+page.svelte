@@ -117,6 +117,7 @@
       <p>Loading...</p>
     {:then blobList}
       {#each blobList.blobs as blob}
+      {blob.url}
           <div class="relative
           p-4 bg-white rounded-xl group border">
             <img src={blob.url} alt="blob" class="max-h-44" >
