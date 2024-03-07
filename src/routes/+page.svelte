@@ -4,7 +4,7 @@
   const hexColumns = 30;
   const hexRows = 15;
 
-  let size = 80;
+  let size = 140;
 
   const hexColor = (i:number) => {
     switch(i % 6) {
@@ -42,7 +42,7 @@
       {#each Array(hexColumns) as _, x}
       <button
       id="hexX{x}Y{y}"
-      class="hex relative {hexColor(x)} focus:bg-black"
+      class="hex relative {hexColor(x)}  transition-transform focus:scale-125 focus:z-10"
       class:oddColum={x % 2}
       on:click={()=> selectedHex = {x,y}}
       >
