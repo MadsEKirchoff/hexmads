@@ -29,4 +29,5 @@
   },
   "editor.formatOnSaveMode": "file",
   "notebook.formatOnSave.enabled": true,
+  "editor.linkedEditing": true,
 }

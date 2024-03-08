@@ -1,10 +1,15 @@
 <script lang="ts">
 import { Tabs, Button, Label, Range, Popover } from "flowbite-svelte";
 
-const hexColumns = 30;
-const hexRows = 15;
+const columns = 30;
+const rows = 15;
 
-let size = 140;
+let hexWidth = 160;
+const heightRatio = 0.87;
+$: hexHeight = () => hexWidth * heightRatio;
+const sideRatio = 0.75;
+$: minWidth = () => sideRatio * hexWidth;
+let margin = 5;
 
 const hexColor = (i: number) => {
   switch (i % 6) {
@@ -24,23 +29,28 @@ const hexColor = (i: number) => {
 };
 
 let selectedHex: { x: number; y: number } | null = null;
-// {x: 0, y: 0};
+
+const prettyObject = (obj: object) =>
+  JSON.stringify(obj).replace(/"|{|}/g, "").replace(",", " ");
 </script>
 
-<main
-  class="main"
-  style="--size: {size}px; --columns: {hexColumns}; --rows: {hexRows}"
->
+<main>
   <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
     <Label class="ml-auto flex">Scale</Label>
-    <Range id="range1" min="20" max="250" bind:value="{size}" class="w-30" />
+    <Range
+      id="range1"
+      min="20"
+      max="250"
+      bind:value="{hexWidth}"
+      class="w-30"
+    />
+    {hexWidth}
+    <Label class="ml-auto flex">Margin</Label>
+    <Range id="range2" min="-30" max="30" bind:value="{margin}" class="w-20" />
+    {margin}
   </div>
   <Popover
-    title="Hex handlinger. {JSON.stringify(selectedHex)
-      .replace(/"/g, '')
-      .replace(/{/g, '')
-      .replace(/}/g, '')
-      .replace(',', ' ')}"
+    title="Hex handlinger. {selectedHex && prettyObject(selectedHex)}"
     triggeredBy=".hex"
     trigger="click"
     class="w-96 z-50"
@@ -51,33 +61,29 @@ let selectedHex: { x: number; y: number } | null = null;
     <Button>Rando 1/2</Button>
     <Button>Rando 1/3</Button>
   </Popover>
-  <!-- class="absolute flex items-center gap-x-4 p-6 z-20 bg-white rounded-lg transition-opacity duration-1000 {!selectedHex ? 'opacity-0' : 'opacity-100'}" -->
-  <section class="hexGrid">
-    <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
-
-    {#each Array(hexRows) as _, y}
-      {#each Array(hexColumns) as _, x}
-        <!-- {#if x % 2} -->
+  <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
+  <section
+    class="grid"
+    style:grid-template-columns="repeat({columns}, {hexWidth * sideRatio +
+      margin}px)"
+    style:grid-template-rows="repeat({rows}, {hexHeight() + margin}px)"
+  >
+    {#each Array(rows) as _, y}
+      {#each Array(columns) as _, x}
         <button
-          id="hexX{x}Y{y}"
-          class="hex relative {hexColor(
-            x,
-          )}  transition-transform focus:scale-125 focus:z-10"
-          class:oddColum="{x % 2}"
           on:click="{() => (selectedHex = { x, y })}"
+          class="hex relative transition-transform focus:scale-125 focus:z-10"
+          style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px"
+          style:width="{hexWidth}px"
         >
+          <!-- <div class="bg-black"></div> -->
           <img
-            class="absolute z-30 top-0 left-0"
-            style="width: {size}px"
-            src="https://lzkv4zegmrmck0ot.public.blob.vercel-storage.com/forrest1-nw18osd749NQUVOYppKNvm79qYJ9gc.png"
-            alt="hex"
+            class="w-full"
+            class:oddColum="{x % 2}"
+            src="https://lzkv4zegmrmck0ot.public.blob.vercel-storage.com/image-9BKY2SNY8T9V8GuOWCQuFFfAbPmGgl.png"
+            alt="Blob"
           />
         </button>
-        <!-- {:else} -->
-        <!-- <span class=""> -->
-        <!-- <img src="blob.svg" alt="Blob"  /> -->
-        <!-- </span> -->
-        <!-- {/if} -->
       {/each}
     {/each}
   </section>
@@ -94,7 +100,7 @@ let selectedHex: { x: number; y: number } | null = null;
   --spikeWidth: calc(var(--size) * var(--clip) - var(--m));
   /* clip-path parameter */
   /* --hc: 10px;
-    --vc: 50px; */
+      --vc: 50px; */
 
   /* --mh: calc(var(--m) + (var(--size) - 2*var(--hc))/2); horizontal margin */
   /* --f: calc(2*var(--size) + 4*var(--m) - 2*var(--vc) - 2px); */
