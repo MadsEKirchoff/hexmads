@@ -1,6 +1,8 @@
 <script lang="ts">
 import { Tabs, Button, Label, Range, Popover } from "flowbite-svelte";
 
+export let data;
+
 const columns = 30;
 const rows = 15;
 
@@ -34,7 +36,7 @@ const prettyObject = (obj: object) =>
   JSON.stringify(obj).replace(/"|{|}/g, "").replace(",", " ");
 </script>
 
-<main>
+<section>
   <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
     <Label class="ml-auto flex">Scale</Label>
     <Range
@@ -61,6 +63,8 @@ const prettyObject = (obj: object) =>
     <Button>Rando 1/2</Button>
     <Button>Rando 1/3</Button>
   </Popover>
+  {JSON.stringify(data)}
+
   <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
   <section
     class="grid"
@@ -87,7 +91,7 @@ const prettyObject = (obj: object) =>
       {/each}
     {/each}
   </section>
-</main>
+</section>
 
 <style>
 .main {

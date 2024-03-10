@@ -2,7 +2,6 @@
 import "../app.css";
 import { Tabs, TabItem } from "flowbite-svelte";
 import Button from "$lib/Button.svelte";
-
 import {
   UserCircleSolid,
   GridOutline,
@@ -29,12 +28,12 @@ const loadPage = async (url: string) => {
 
 <!-- https://ui.aceternity.com/components/tailwindcss-buttons -->
 <!-- <main class="relative min-h-screen h-full"> -->
-<div class="max-h-screen h-full overflow-hidden flex flex-col">
+<main class="max-h-screen h-full overflow-hidden flex flex-col">
   <Tabs style="underline" contentClass=" " class="justify-end bg-gray-500/20">
     <TabItem
-      open="{$page.url.pathname === '/'}"
+      open="{$page.url.pathname === '/map'}"
       title="Profile"
-      on:click="{() => loadPage('/')}"
+      on:click="{() => loadPage('/map')}"
     >
       <div slot="title" class="flex items-center gap-2">
         <!-- <DrawSquareOutline size="sm" /> -->
@@ -71,13 +70,4 @@ const loadPage = async (url: string) => {
   <div class="overflow-auto max-h-full pt-4 pb-12 flex-grow flex-1">
     <slot />
   </div>
-</div>
-<!-- </main> -->
-<!-- <nav class="flex justify-center space-x-8 py-4"> -->
-<!-- <a href="/" class="">
-      <Button>Kort</Button>
-    </a>
-    <a href="/gallery">
-      <Button>Hexgalleri</Button>
-    </a>
-</main> -->
+</main>

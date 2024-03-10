@@ -3,17 +3,15 @@ import { put, list, type ListBlobResult } from "@vercel/blob";
 import Button from "$lib/Button.svelte";
 import { enhance } from "$app/forms";
 import { TrashBinOutline } from "flowbite-svelte-icons";
-
-export let form;
-export let data;
-
 import UploadIcon from "$lib/UploadIcon.svelte";
+
+export let data;
+export let form;
 
 // $: newImage = async () => {
 //   let bloos = Array(await data.blobList)
 //   bloos = [form?.uploaded, ...bloos]
 // }
-
 let file: File | null = null;
 
 function onChange(

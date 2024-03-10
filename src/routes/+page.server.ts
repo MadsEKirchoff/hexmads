@@ -1,6 +1,5 @@
-import { error } from '@sveltejs/kit'
-import { put, list } from '@vercel/blob'
-import { BLOB_READ_WRITE_TOKEN } from '$env/static/private'
+import { redirect } from "@sveltejs/kit"
 
-export function load({ params }) {
+export async function load() {
+  redirect(302, '/map')
 }
