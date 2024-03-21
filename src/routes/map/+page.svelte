@@ -1,17 +1,15 @@
 <script lang="ts">
-import { Tabs, Button, Label, Range, Popover } from "flowbite-svelte";
-
-export let data;
-
-const columns = 15;
-const rows = 12;
-
-let hexWidth = 160;
-const heightRatio = 0.87;
-$: hexHeight = () => hexWidth * heightRatio;
-const sideRatio = 0.75;
-$: minWidth = () => sideRatio * hexWidth;
-let margin = 5;
+import {
+  Button,
+  Label,
+  Popover,
+  Range,
+  Tabs,
+  TabItem,
+  ButtonGroup,
+  GradientButton,
+} from "flowbite-svelte";
+import { dev } from "$app/environment";
 
 const hexColor = (i: number) => {
   switch (i % 6) {
@@ -26,18 +24,46 @@ const hexColor = (i: number) => {
     case 4:
       return "bg-gray-600";
     case 5:
-      return "bg-gray-200";
+      return "bg-gray-400";
   }
 };
-
-let selectedHex: { x: number; y: number } | null = null;
-
 const prettyObject = (obj: object) =>
   JSON.stringify(obj).replace(/"|{|}/g, "").replace(",", " ");
+
+export let data;
+
+const columns = 67;
+const rows = 32;
+
+let hexWidth = 160;
+const heightRatio = 0.87;
+$: hexHeight = () => hexWidth * heightRatio;
+const sideRatio = 0.75;
+$: minWidth = () => sideRatio * hexWidth;
+let margin = 3;
+
+const hexhashes = new Map();
+data.hexInstance.forEach((hex: any) => {
+  hexhashes.set({ x: hex.x, y: hex.y }, hex);
+});
+
+let biomeSelected: (typeof data.biome)[number] | null = null;
+
+let selectedHex: { x: number; y: number } | null = null;
+$: isHex = (x: number, y: number) =>
+  selectedHex?.x === x && selectedHex?.y === y;
+
+let file: File | null = null;
+const onChange = (
+  event: Event & { currentTarget: EventTarget & HTMLInputElement },
+) => {
+  file = (event.target as HTMLInputElement)?.files?.[0] ?? null;
+};
 </script>
 
 <section>
   <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
+    <Label>Margin:</Label>
     <Range
       id="range1"
       min="20"
@@ -46,23 +72,60 @@ const prettyObject = (obj: object) =>
       class="w-30"
     />
     {hexWidth}
-    <Label class="ml-auto flex">Margin</Label>
+    <Label class="ml-8">Margin</Label>
     <Range id="range2" min="-30" max="30" bind:value="{margin}" class="w-20" />
     {margin}
   </div>
   <Popover
-    title="Hex handlinger. {selectedHex && prettyObject(selectedHex)}"
+    title="Hex handlinger, {selectedHex && prettyObject(selectedHex)}"
     triggeredBy=".hex"
     trigger="click"
-    class="w-96 z-50"
+    class="z-50"
   >
-    <!-- on:close={()=>selectedHex = null} -->
-    <Button>Upload</Button>
-    <Button>Rando</Button>
-    <Button>Rando 1/2</Button>
-    <Button>Rando 1/3</Button>
+    <div
+      class="justify-center gap-4 flex-wrap flex flex-col items-center"
+      style=""
+    >
+      <!-- on:close={()=>selectedHex = null} -->
+      <div>
+        <Button color="alternative" size="lg">Upload</Button>
+        <Button
+          color="none"
+          size="xs"
+          class="ml-4 {!hexhashes.has(selectedHex) && 'hidden'}">Slet</Button
+        >
+      </div>
+      <ButtonGroup
+        style="full h-12"
+        defaultClass="flex rounded-lg divide-x rtl:divide-x-reverse shadow mt-8 p-4"
+      >
+        {#each data.biome as bio}
+          <Button
+            color="{bio.color ?? 'red'}"
+            class="h-10 opacity-80 transition-transform {biomeSelected === bio
+              ? 'opacity-100 scale-110 z-10'
+              : ''}"
+            on:click="{() => (biomeSelected = bio)}">{bio.name}</Button
+          >
+        {/each}
+      </ButtonGroup>
+      <div class="flex gap-2">
+        <GradientButton pill disabled="{!biomeSelected}" color="purpleToPink"
+          >Rando</GradientButton
+        >
+        <GradientButton pill disabled="{!biomeSelected}" color="pinkToOrange"
+          >Rando 1/2</GradientButton
+        >
+        <GradientButton pill disabled="{!biomeSelected}" color="tealToLime"
+          >Rando 1/3</GradientButton
+        >
+      </div>
+    </div>
   </Popover>
-  {JSON.stringify(data, null, 2)}
+
+  {#if dev}
+    <p class="text-[10px] text-gray-800">{JSON.stringify(data, null, 2)}</p>
+  {/if}
 
   <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
   <section
@@ -75,22 +138,56 @@ const prettyObject = (obj: object) =>
       {#each Array(columns) as _, x}
         <button
           on:click="{() => (selectedHex = { x, y })}"
-          class="hex relative transition-transform focus:scale-125 focus:z-10"
+          class="hex relative transition-transform {isHex(x, y) &&
+            'scale-125 z-10'}"
           style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px"
           style:width="{hexWidth}px"
         >
-          <!-- <div class="bg-black"></div> -->
-          <img
-            class="w-full"
-            class:oddColum="{x % 2}"
-            src="https://lzkv4zegmrmck0ot.public.blob.vercel-storage.com/image-9BKY2SNY8T9V8GuOWCQuFFfAbPmGgl.png"
-            alt="Blob"
-          />
+          {#if data.party[0]?.x === x && data.party[0]?.y === y}
+            <img src="{data.party[0].imageUrl}" class="w-1/2" alt="party" />
+          {/if}
+          {#if hexhashes.get({ x, y })}
+            <img
+              class:oddColum="{x % 2}"
+              src="https://lzkv4zegmrmck0ot.public.blob.vercel-storage.com/hex-FwylBqjBXhYVbnA4iFE7c5GQHHvHeK.png"
+              alt="Blob"
+            />
+            <!-- Xsrc="{hexhashes.get({ x, y })?.imageUrl}" -->
+          {:else}
+            <div
+              class="{hexColor(x)} opacity-10"
+              style="
+              width: {hexWidth}px;
+              margin: {margin}px {minWidth}px;
+              height: {hexHeight()}px;
+              margin-bottom: {margin}px;
+              clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+              "
+            ></div>
+            <!-- margin-top: {x % 2 ? hexHeight() / 2 : 0}px; -->
+            <!--
+            clip-pathsdds: polygon(
+              {minWidth}px 0%,
+              {hexWidth - minWidth()}px 0%,
+              100% 50%,
+              {hexWidth - minWidth()}px 100%,
+              {minWidth}px 100%,
+            -->
+          {/if}
         </button>
       {/each}
     {/each}
   </section>
 </section>
+
+<input
+  id="image-upload"
+  name="image-upload"
+  type="file"
+  accept="image/*"
+  class="sr-only"
+  on:change="{onChange}"
+/>
 
 <style>
 .main {
@@ -146,4 +243,8 @@ const prettyObject = (obj: object) =>
 .oddColum {
   margin-top: calc(var(--size) * var(--ratio) / 2);
 }
+/* .hexImg {
+  width: var(--size);
+  margin-bottom: calc(var(--m) - var(--vc));
+}*/
 </style>

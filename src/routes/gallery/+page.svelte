@@ -109,7 +109,7 @@ $: buttonClass = file
   </div>
 
   <!-- ICONS: https://icon-sets.iconify.design/ -->
-  <h2 class="mt-8 mb-6 text-xl font-semibold">Ukategoriserede billeder</h2>
+  <h2 class="mt-8 mb-6 text-xl font-semibold">Andre billeder</h2>
   <div class="flex max-w-screen gap-4 flex-wrap justify-center px-8">
     {#await data.blobList}
       <p>Loading...</p>
@@ -126,7 +126,9 @@ $: buttonClass = file
           <div
             class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100"
           >
-            <button>
+            <button
+              class="bg-white/20 rounded-full w-12 h-12 flex items-center justify-center opacity-80"
+            >
               <TrashBinOutline
                 class="w-10 h-10"
                 on:click="{async (e) => {

@@ -1,5 +1,5 @@
 {
-  "id": "b0544b53-2f2b-4393-b8e3-8327afa27bf9",
+  "id": "39713d2f-1d7f-4511-bda7-feaef04b8402",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -76,12 +76,6 @@
       "name": "hexInstance",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "x": {
           "name": "x",
           "type": "integer",
@@ -99,10 +93,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "template": {
+          "name": "template",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "hexInstance_template_hexTemplate_id_fk": {
+          "name": "hexInstance_template_hexTemplate_id_fk",
+          "tableFrom": "hexInstance",
+          "tableTo": "hexTemplate",
+          "columnsFrom": [
+            "template"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -130,7 +144,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "hexTemplate_biome_biome_id_fk": {
+          "name": "hexTemplate_biome_biome_id_fk",
+          "tableFrom": "hexTemplate",
+          "tableTo": "biome",
+          "columnsFrom": [
+            "biome"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

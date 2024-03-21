@@ -10,6 +10,7 @@ import {
   MapPinAltSolid,
   FileImageOutline,
 } from "flowbite-svelte-icons";
+import { dev } from "$app/environment";
 import { Alert } from "flowbite-svelte";
 import { goto } from "$app/navigation";
 import { Spinner } from "flowbite-svelte";
@@ -49,21 +50,22 @@ const loadPage = async (url: string) => {
         <FileImageOutline size="sm" />Hexgalleri
       </div>
     </TabItem>
+    {#if dev}
+      <TabItem title="Seed" on:click="{() => loadPage('/seed')}">Seed</TabItem>
+    {/if}
   </Tabs>
   {#if loading}
-    <div>
+    <div
+      class="absolute z-50 left-0 right-0 top-0 bottom-0 flex justify-center items-center"
+      transition:fade
+    >
+      <Spinner size="36" class="absolute z-50" />
+    </div>
+    <div class="relative">
       <div
-        class="absolute z-50 left-0 right-0 top-0 bottom-0 flex justify-center items-center"
+        class="absolute z-40 inset-0 min-h-screen min-w-screen bg-[#eaf0f0]"
         transition:fade
-      >
-        <Spinner size="36" class="absolute z-50" />
-      </div>
-      <div class="relative">
-        <div
-          class="absolute z-40 inset-0 min-h-screen min-w-screen bg-[#f0efea]"
-          transition:fade
-        ></div>
-      </div>
+      ></div>
     </div>
   {/if}
 

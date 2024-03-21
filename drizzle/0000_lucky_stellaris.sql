@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS "hexGrid" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "hexInstance" (
-	"id" serial PRIMARY KEY NOT NULL,
 	"x" integer NOT NULL,
 	"y" integer NOT NULL,
-	"name" text NOT NULL
+	"name" text NOT NULL,
+	"template" integer
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "hexTemplate" (
@@ -31,3 +31,15 @@ CREATE TABLE IF NOT EXISTS "party" (
 	"x" integer NOT NULL,
 	"y" integer NOT NULL
 );
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "hexInstance" ADD CONSTRAINT "hexInstance_template_hexTemplate_id_fk" FOREIGN KEY ("template") REFERENCES "hexTemplate"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "hexTemplate" ADD CONSTRAINT "hexTemplate_biome_biome_id_fk" FOREIGN KEY ("biome") REFERENCES "biome"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;

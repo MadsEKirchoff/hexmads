@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1710450232854,
-      "tag": "0000_slippery_husk",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1710453459303,
-      "tag": "0001_wandering_beyonder",
+      "when": 1711048041758,
+      "tag": "0000_lucky_stellaris",
       "breakpoints": true
     }
   ]

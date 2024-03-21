@@ -2,12 +2,23 @@ import { sql } from '@vercel/postgres'
 import {
   integer,
   pgTable,
+  primaryKey,
   serial,
   text
 } from 'drizzle-orm/pg-core'
 import { drizzle } from 'drizzle-orm/vercel-postgres'
+import { customType } from 'drizzle-orm/pg-core'
 
 export const db = drizzle(sql)
+
+export type buttonColor = "red" | "yellow" | "green" | "purple" | "blue" | "light" | "dark" | "primary" | "none" | "alternative" | "none"
+
+const customcolor = customType<{ data: buttonColor }>({
+  dataType() {
+    return 'text'
+  },
+})
+
 
 export const hexGrid = pgTable("hexGrid", {
   id: serial("id").primaryKey(),
@@ -17,11 +28,10 @@ export const hexGrid = pgTable("hexGrid", {
   backgroundImage: text("backgroundImage"),
 })
 export const hexInstance = pgTable("hexInstance", {
-  id: serial("id").primaryKey(),
   x: integer("x").notNull(),
   y: integer("y").notNull(),
-  image: text("name").notNull(),
-  template: integer("template").notNull().references(() => hexTemplate.id)
+  imageUrl: text("name").notNull(),
+  template: integer("template").references(() => hexTemplate.id)
 })
 export const hexTemplate = pgTable("hexTemplate", {
   id: serial("id").primaryKey(),
@@ -37,5 +47,5 @@ export const party = pgTable("party", {
 export const biome = pgTable("biome", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  color: text("color"),
+  color: customcolor("color")
 })
