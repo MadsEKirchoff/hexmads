@@ -114,7 +114,7 @@ $: buttonClass = file
     {#await data.blobList}
       <p>Loading...</p>
     {:then blobList}
-      {#each blobList.blobs as blob}
+      {#each blobList.blobs as (blob.url)}
         <div
           class="relative
           p-4 bg-white rounded-xl group border"
