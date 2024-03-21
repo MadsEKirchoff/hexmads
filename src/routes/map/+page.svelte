@@ -82,21 +82,26 @@ const onChange = (
     trigger="click"
     class="z-50"
   >
-    <div
-      class="justify-center gap-4 flex-wrap flex flex-col items-center"
-      style=""
-    >
+    <div class="justify-center gap-4 flex-wrap flex flex-col items-center m-3">
       <!-- on:close={()=>selectedHex = null} -->
       <div>
         <Button color="alternative" size="lg">Upload</Button>
+        <input
+          id="image-upload"
+          name="image-upload"
+          type="file"
+          accept="image/*"
+          class="sr-only"
+          on:change="{onChange}"
+        />
         <Button
           color="none"
           size="xs"
           class="ml-4 {!hexhashes.has(selectedHex) && 'hidden'}">Slet</Button
         >
       </div>
+      - eller -
       <ButtonGroup
-        style="full h-12"
         defaultClass="flex rounded-lg divide-x rtl:divide-x-reverse shadow mt-8 p-4"
       >
         {#each data.biome as bio}
@@ -109,22 +114,32 @@ const onChange = (
           >
         {/each}
       </ButtonGroup>
-      <div class="flex gap-2">
-        <GradientButton pill disabled="{!biomeSelected}" color="purpleToPink"
-          >Rando</GradientButton
+
+      <div class="flex gap-2 mt-2">
+        <GradientButton
+          pill
+          disabled="{!biomeSelected}"
+          class="transition-color"
+          color="purpleToPink">Rando</GradientButton
         >
-        <GradientButton pill disabled="{!biomeSelected}" color="pinkToOrange"
-          >Rando 1/2</GradientButton
+        <GradientButton
+          pill
+          disabled="{!biomeSelected}"
+          class="transition-color"
+          color="pinkToOrange">Rando 1/2</GradientButton
         >
-        <GradientButton pill disabled="{!biomeSelected}" color="tealToLime"
-          >Rando 1/3</GradientButton
+        <GradientButton
+          pill
+          disabled="{!biomeSelected}"
+          class="transition-color"
+          color="tealToLime">Rando 1/3</GradientButton
         >
       </div>
     </div>
   </Popover>
 
   {#if dev}
-    <p class="text-[10px] text-gray-800">{JSON.stringify(data, null, 2)}</p>
+    <p class="text-[11px] text-gray-800">{JSON.stringify(data, null, 2)}</p>
   {/if}
 
   <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
@@ -179,15 +194,6 @@ const onChange = (
     {/each}
   </section>
 </section>
-
-<input
-  id="image-upload"
-  name="image-upload"
-  type="file"
-  accept="image/*"
-  class="sr-only"
-  on:change="{onChange}"
-/>
 
 <style>
 .main {

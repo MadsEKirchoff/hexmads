@@ -1,4 +1,8 @@
-import { BLOB_READ_WRITE_TOKEN } from '$env/static/private'
+import { biome, db } from '../schema.js'
 
 export async function load() {
+
+  return {
+    biome: await db.select().from(biome),
+  }
 }

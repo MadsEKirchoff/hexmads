@@ -8,8 +8,6 @@ export async function load({ locals }) {
     hexInstance: await db.select().from(hexInstance),
     party: await db.select().from(party),
     biome: await db.select().from(biome),
-
-    // test: await sql`SELECT * from USERS`,
     // test2: await sql`SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'`
   }
 }

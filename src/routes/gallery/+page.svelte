@@ -1,12 +1,16 @@
 <script lang="ts">
 import { put, list, type ListBlobResult } from "@vercel/blob";
-import Button from "$lib/Button.svelte";
+// import Button from "$lib/Button.svelte";
 import { enhance } from "$app/forms";
 import { TrashBinOutline } from "flowbite-svelte-icons";
 import UploadIcon from "$lib/UploadIcon.svelte";
+import { ButtonGroup, Button, GradientButton } from "flowbite-svelte";
+import { fly, fade } from "svelte/transition";
+import { Spinner } from "flowbite-svelte";
 
 export let data;
-export let form;
+export let form: HTMLFormElement;
+export let form2: HTMLFormElement;
 
 // $: newImage = async () => {
 //   let bloos = Array(await data.blobList)
@@ -14,97 +18,91 @@ export let form;
 // }
 let file: File | null = null;
 
-function onChange(
+let uploading = false;
+
+let biomeSelected: (typeof data.biome)[number] | null = null;
+
+const confirmTime = 1400;
+let confirming = "";
+
+let timeout: number | null = null;
+
+const debounceConfirm = (id: string, func: () => {}) => {
+  confirming = id;
+  if (timeout) clearTimeout(timeout);
+  timeout = window.setTimeout(() => {
+    if (confirming) func();
+    confirming = "";
+  }, confirmTime);
+};
+
+let shownBlobs: Record<string, boolean> = { test: true };
+
+const onChange = (
   event: Event & { currentTarget: EventTarget & HTMLInputElement },
-) {
+) => {
   file = (event.target as HTMLInputElement)?.files?.[0] ?? null;
-}
-$: buttonClass = file
-  ? "border-black bg-black text-white hover:bg-white hover:text-black"
-  : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400";
+  form2?.dispatchEvent(new Event("submit", { bubbles: true }));
+};
 </script>
 
 <main class="relative flex min-h-screen flex-col items-center">
   <div
-    class="flex flex-col items-center w-full max-w-xl p-12 mx-auto rounded-lg shadow-xl dark:bg-white/10 bg-white/30 ring-1 ring-gray-900/5 backdrop-blur-lg"
+    class="flex flex-col items-center w-full max-w-xl p-8 mx-auto rounded-lg shadow-xl dark:bg-white/10 bg-white
+     ring-1 ring-gray-900/5 backdrop-blur-lg"
   >
     <form
       class="grid gap-6 w-full"
       action="?/upload"
       method="POST"
       enctype="multipart/form-data"
+      bind:this="{form2}"
       use:enhance="{() => {
+        uploading = true;
         return async ({ update }) => {
           file = null;
           update({ reset: true });
+          uploading = false;
         };
       }}"
     >
-      <div>
-        <div class="space-y-1 mb-4">
-          <h2 class="text-xl font-semibold">Upload billede</h2>
-          <p class="text-sm text-gray-500">
-            Accepted formats: .png, .jpg, .gif, .mp4
-          </p>
-        </div>
-        <label
-          for="image-upload"
-          class="group relative mt-2 flex h-52 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50"
+      <ButtonGroup style="h-12" divClass="inline-flex justify-center">
+        {#each data.biome as bio}
+          <Button
+            color="{bio.color ?? 'red'}"
+            class="h-10 opacity-80 transition-transform {biomeSelected === bio
+              ? 'opacity-100 scale-125 z-10'
+              : ''}"
+            on:click="{() => (biomeSelected = bio)}">{bio.name}</Button
+          >
+        {/each}
+        <Button
+          color="alternative"
+          class="h-10 opacity-80 transition-all {!biomeSelected
+            ? 'opacity-100 scale-125 z-10'
+            : ''}"
+          on:click="{() => (biomeSelected = null)}">Ingen</Button
         >
-          {#if !file}
-            <div class="absolute z-[5] h-full w-full rounded-md">
-              <div
-                class="{`${''} absolute z-[3] flex h-full w-full flex-col items-center justify-center rounded-md px-10 transition-all ${'bg-white opacity-100 hover:bg-gray-50'}`}"
-              >
-                <UploadIcon class="w-12 h-12 text-gray-500" />
+      </ButtonGroup>
 
-                <p class="mt-2 text-center text-sm text-gray-500">
-                  Click to upload.
-                </p>
-                <p class="mt-2 text-center text-sm text-gray-500">
-                  Max file size: 50MB
-                </p>
-                <span class="sr-only">Photo upload</span>
-              </div>
-            </div>
-          {:else}
-            <p>{file.name}</p>
-          {/if}
-        </label>
-        <div class="mt-1 flex rounded-md shadow-sm">
+      <div class="flex flex-col">
+        <GradientButton size="xl" color="purpleToBlue" disabled="{uploading}"
+          >Upload billede
+          <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
           <input
             id="image-upload"
             name="image-upload"
             type="file"
             accept="image/*"
-            class="sr-only"
+            class="opacity-0 absolute"
             on:change="{onChange}"
           />
-        </div>
+        </GradientButton>
+        <p class="text-[10px] text-gray-500 text-right h-min">
+          Mulige filtyper: .png, .jpg, .gif, .mp4
+        </p>
       </div>
-
-      <button
-        disabled="{!file}"
-        class="{buttonClass} flex h-10 w-full items-center justify-center rounded-md border text-sm transition-all focus:outline-none"
-      >
-        <p class="text-sm">Confirm upload</p>
-      </button>
-      {#if form && !file}
-        <div class="p-2">
-          <p class="font-semibold text-gray-900">File uploaded!</p>
-          <p class="mt-1 text-sm text-gray-500">
-            Your file has been uploaded to{" "}
-            <a
-              class="font-medium text-gray-900 underline"
-              href="{form.uploaded}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {form.uploaded}
-            </a>
-          </p>
-        </div>
-      {/if}
+      <input type="hidden" name="biome" value="{biomeSelected?.name}" />
     </form>
   </div>
 
@@ -114,36 +112,59 @@ $: buttonClass = file
     {#await data.blobList}
       <p>Loading...</p>
     {:then blobList}
-      {#each blobList.blobs as (blob.url)}
+      {#each blobList.blobs as blob (blob.url)}
         <div
           class="relative
           p-4 bg-white rounded-xl group border"
         >
-          <img src="{blob.url}" alt="blob" class="max-h-44" />
-          <div
-            class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-70 transition-opacity bg-white"
-          ></div>
-          <div
-            class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100"
-          >
-            <button
-              class="bg-white/20 rounded-full w-12 h-12 flex items-center justify-center opacity-80"
+          {#if blob.size < 10 || shownBlobs[blob.url]}
+            <img
+              src="{blob.url}"
+              alt="blob"
+              class="max-h-44 transition-opacity duration-[1.5s] {confirming ===
+              blob.url
+                ? 'opacity-0'
+                : 'opacity-100'}"
+              transition:fade
+            />
+            <div
+              class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-30 transition-opacity bg-white"
+            ></div>
+            <div
+              class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100"
             >
-              <TrashBinOutline
-                class="w-10 h-10"
-                on:click="{async (e) => {
-                  blobList.blobs = blobList.blobs.filter(
-                    (b) => b.url !== blob.url,
-                  );
-                  await fetch(`/blob`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(blob),
+              <button
+                class="bg-white/20 rounded-full w-12 h-12 flex items-center justify-center opacity-80"
+                on:mousedown="{async (e) => {
+                  debounceConfirm(blob.url, async () => {
+                    blobList.blobs = blobList.blobs.filter(
+                      (b) => b.url !== blob.url,
+                    );
+                    await fetch(`/blob`, {
+                      method: 'DELETE',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(blob),
+                    });
                   });
                 }}"
-              />
-            </button>
-          </div>
+                on:mouseup="{() => (confirming = '')}"
+              >
+                <TrashBinOutline
+                  class="rounded-full w-10 h-10 transition rotate-0 duration-[1.5s] visited:border-0 {confirming ===
+                    blob.url && 'rotate-[360deg] scale-150 text-red-500'}"
+                />
+              </button>
+            </div>
+          {:else}
+            <span class="flex break-all max-w-48 justify-center text-center"
+              >{blob.pathname}</span
+            >
+            <Button
+              on:click="{() => (shownBlobs[blob.url] = true)}"
+              size="lg"
+              class="w-full mt-2">Vis stort billede</Button
+            >
+          {/if}
         </div>
       {/each}
     {:catch error}
