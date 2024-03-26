@@ -7,10 +7,11 @@ import UploadIcon from "$lib/UploadIcon.svelte";
 import { ButtonGroup, Button, GradientButton } from "flowbite-svelte";
 import { fly, fade } from "svelte/transition";
 import { Spinner } from "flowbite-svelte";
+import { index } from "drizzle-orm/mysql-core";
+import { dev } from "$app/environment";
 
 export let data;
 export let form: HTMLFormElement;
-export let form2: HTMLFormElement;
 
 // $: newImage = async () => {
 //   let bloos = Array(await data.blobList)
@@ -20,7 +21,7 @@ let file: File | null = null;
 
 let uploading = false;
 
-let biomeSelected: (typeof data.biome)[number] | null = null;
+let biomeSelected: (typeof data.biome)[number] | null;
 
 const confirmTime = 1400;
 let confirming = "";
@@ -42,8 +43,22 @@ const onChange = (
   event: Event & { currentTarget: EventTarget & HTMLInputElement },
 ) => {
   file = (event.target as HTMLInputElement)?.files?.[0] ?? null;
-  form2?.dispatchEvent(new Event("submit", { bubbles: true }));
+  form?.dispatchEvent(new Event("submit", { bubbles: true }));
 };
+
+$: hexGroups = () =>
+  Object.entries(
+    data.hexTemplates.reduce(
+      (acc, curr) => {
+        const biomeName = data.biome.find((b) => b.id === curr.biome)?.name!;
+        const group = acc[biomeName] || [];
+        group.push(curr);
+        acc[biomeName] = group;
+        return acc;
+      },
+      {} as Record<string, typeof data.hexTemplates>,
+    ),
+  );
 </script>
 
 <main class="relative flex min-h-screen flex-col items-center">
@@ -56,7 +71,7 @@ const onChange = (
       action="?/upload"
       method="POST"
       enctype="multipart/form-data"
-      bind:this="{form2}"
+      bind:this="{form}"
       use:enhance="{() => {
         uploading = true;
         return async ({ update }) => {
@@ -73,12 +88,13 @@ const onChange = (
             class="h-10 opacity-80 transition-transform {biomeSelected === bio
               ? 'opacity-100 scale-125 z-10'
               : ''}"
-            on:click="{() => (biomeSelected = bio)}">{bio.name}</Button
+            on:click="{() => (biomeSelected = bio)}"
+            name="{biomeSelected == bio && 'biomeBtn'}">{bio.name}</Button
           >
         {/each}
         <Button
           color="alternative"
-          class="h-10 opacity-80 transition-all {!biomeSelected
+          class="h-10 opacity-80 transition-all {biomeSelected === null
             ? 'opacity-100 scale-125 z-10'
             : ''}"
           on:click="{() => (biomeSelected = null)}">Ingen</Button
@@ -86,7 +102,10 @@ const onChange = (
       </ButtonGroup>
 
       <div class="flex flex-col">
-        <GradientButton size="xl" color="purpleToBlue" disabled="{uploading}"
+        <GradientButton
+          size="xl"
+          color="purpleToBlue"
+          disabled="{uploading || biomeSelected === undefined}"
           >Upload billede
           <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
           <input
@@ -102,22 +121,37 @@ const onChange = (
           Mulige filtyper: .png, .jpg, .gif, .mp4
         </p>
       </div>
-      <input type="hidden" name="biome" value="{biomeSelected?.name}" />
+      <input
+        type="{!dev ? 'hidden' : ''}"
+        name="biome"
+        value="{biomeSelected?.id}"
+      />
     </form>
   </div>
+  {hexGroups()?.length}
+  {#each hexGroups() as [biome, hexes] (biome)}
+    <h2 class="mt-8 mb-6 text-xl font-semibold">{biome}</h2>
+    {#each hexes as hex}
+      <div
+        class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-lg"
+      >
+        <img src="{hex.imageUrl}" alt="hex" class="max-h-44" />
+      </div>
+    {/each}
+  {/each}
 
   <!-- ICONS: https://icon-sets.iconify.design/ -->
-  <h2 class="mt-8 mb-6 text-xl font-semibold">Andre billeder</h2>
-  <div class="flex max-w-screen gap-4 flex-wrap justify-center px-8">
+  <h2 class="mt-8 mb-6 text-xl font-semibold">billeder</h2>
+  <div class="flex max-w-screen gap-4 flex-wrap juAndrestify-center px-8">
     {#await data.blobList}
       <p>Loading...</p>
     {:then blobList}
-      {#each blobList.blobs as blob (blob.url)}
+      {#each blobList.blobs as blob, index (blob.url)}
         <div
           class="relative
           p-4 bg-white rounded-xl group border"
         >
-          {#if blob.size < 10 || shownBlobs[blob.url]}
+          {#if (blob.size < 1000 && index < 2) || shownBlobs[blob.url]}
             <img
               src="{blob.url}"
               alt="blob"
@@ -125,7 +159,6 @@ const onChange = (
               blob.url
                 ? 'opacity-0'
                 : 'opacity-100'}"
-              transition:fade
             />
             <div
               class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-30 transition-opacity bg-white"
@@ -162,7 +195,7 @@ const onChange = (
             <Button
               on:click="{() => (shownBlobs[blob.url] = true)}"
               size="lg"
-              class="w-full mt-2">Vis stort billede</Button
+              class="w-full mt-2">Vis billede</Button
             >
           {/if}
         </div>

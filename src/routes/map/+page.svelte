@@ -8,8 +8,10 @@ import {
   TabItem,
   ButtonGroup,
   GradientButton,
+  Spinner,
 } from "flowbite-svelte";
 import { dev } from "$app/environment";
+import { enhance } from "$app/forms";
 
 const hexColor = (i: number) => {
   switch (i % 6) {
@@ -31,6 +33,9 @@ const prettyObject = (obj: object) =>
   JSON.stringify(obj).replace(/"|{|}/g, "").replace(",", " ");
 
 export let data;
+export let form: HTMLFormElement;
+
+let uploading = false;
 
 const columns = 67;
 const rows = 32;
@@ -85,20 +90,39 @@ const onChange = (
     <div class="justify-center gap-4 flex-wrap flex flex-col items-center m-3">
       <!-- on:close={()=>selectedHex = null} -->
       <div>
-        <Button color="alternative" size="lg">Upload</Button>
-        <input
-          id="image-upload"
-          name="image-upload"
-          type="file"
-          accept="image/*"
-          class="sr-only"
-          on:change="{onChange}"
-        />
-        <Button
-          color="none"
-          size="xs"
-          class="ml-4 {!hexhashes.has(selectedHex) && 'hidden'}">Slet</Button
+        <form
+          action="?/upload"
+          method="POST"
+          enctype="multipart/form-data"
+          bind:this="{form}"
+          use:enhance="{() => {
+            uploading = true;
+            return async ({ update }) => {
+              file = null;
+              update({ reset: true });
+              uploading = false;
+            };
+          }}"
         >
+          <Button color="alternative" size="lg"
+            >Upload
+            <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
+            <input
+              id="image-upload"
+              name="image-upload"
+              type="file"
+              accept="image/*"
+              class="opacity-0 absolute"
+              on:change="{onChange}"
+            />
+          </Button>
+          <!-- <Button
+              color="none"
+              size="xs"
+              class="ml-4 {!hexhashes.has(selectedHex) && 'hidden'}"
+              >Slet</Button
+            > -->
+        </form>
       </div>
       - eller -
       <ButtonGroup
