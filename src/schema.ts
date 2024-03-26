@@ -13,7 +13,7 @@ export const db = drizzle(sql)
 
 export type buttonColor = "red" | "yellow" | "green" | "purple" | "blue" | "light" | "dark" | "primary" | "none" | "alternative" | "none"
 
-const customcolor = customType<{ data: buttonColor }>({
+const customcolor = customType<{ data: buttonColor | string }>({
   dataType() {
     return 'text'
   },
@@ -25,22 +25,27 @@ export const hexGrid = pgTable("hexGrid", {
   name: text("name").notNull(),
   width: integer("width"),
   height: integer("height"),
-  backgroundImage: text("backgroundImage"),
+  backgroundImageUrl: text("backgroundImage"),
 })
 export const hexInstance = pgTable("hexInstance", {
   x: integer("x").notNull(),
   y: integer("y").notNull(),
-  imageUrl: text("name").notNull(),
+  hexGrid: integer("hexGrid").references(() => hexGrid.id),
+  imageUrl: text("imageUrl").notNull(),
+  localImageUrl: text("localImageUrl"),
   template: integer("template").references(() => hexTemplate.id)
 })
 export const hexTemplate = pgTable("hexTemplate", {
   id: serial("id").primaryKey(),
-  imageUrl: text("name").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  localImageUrl: text("localImageUrl"),
+  copies: integer("copies"),
   biome: integer("biome").notNull().references(() => biome.id)
 })
 export const party = pgTable("party", {
   id: serial("id").primaryKey(),
-  imageUrl: text("name").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  localImageUrl: text("localImageUrl"),
   x: integer("x").notNull(),
   y: integer("y").notNull()
 })

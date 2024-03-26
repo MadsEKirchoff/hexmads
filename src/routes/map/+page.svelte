@@ -12,6 +12,7 @@ import {
 } from "flowbite-svelte";
 import { dev } from "$app/environment";
 import { enhance } from "$app/forms";
+// import logo from "$lib/assets/logo.png";
 
 const hexColor = (i: number) => {
   switch (i % 6) {
@@ -45,7 +46,7 @@ const heightRatio = 0.87;
 $: hexHeight = () => hexWidth * heightRatio;
 const sideRatio = 0.75;
 $: minWidth = () => sideRatio * hexWidth;
-let margin = 3;
+let margin = 1;
 
 const hexhashes = new Map();
 data.hexInstance.forEach((hex: any) => {
@@ -64,9 +65,13 @@ const onChange = (
 ) => {
   file = (event.target as HTMLInputElement)?.files?.[0] ?? null;
 };
+
+let party = data.party[0];
+let isDraggingParty = false;
 </script>
 
 <section>
+  <!-- Top actions -->
   <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
     <Label>Margin:</Label>
     <Range
@@ -81,14 +86,18 @@ const onChange = (
     <Range id="range2" min="-30" max="30" bind:value="{margin}" class="w-20" />
     {margin}
   </div>
+
+  <!-- Actions -->
   <Popover
     title="Hex handlinger, {selectedHex && prettyObject(selectedHex)}"
     triggeredBy=".hex"
     trigger="click"
-    class="z-50"
+    class="z-50 {!selectedHex && 'hidden'}"
+    on:show="{(event) => {
+      if (!event.detail) selectedHex = null;
+    }}"
   >
     <div class="justify-center gap-4 flex-wrap flex flex-col items-center m-3">
-      <!-- on:close={()=>selectedHex = null} -->
       <div>
         <form
           action="?/upload"
@@ -104,12 +113,12 @@ const onChange = (
             };
           }}"
         >
-          <Button color="alternative" size="lg"
-            >Upload
+          <Button color="alternative" size="lg" disabled="!selectedHex">
+            Upload
             <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
             <input
-              id="image-upload"
-              name="image-upload"
+              id="hex-image"
+              name="hex-image"
               type="file"
               accept="image/*"
               class="opacity-0 absolute"
@@ -171,20 +180,40 @@ const onChange = (
     class="grid"
     style:grid-template-columns="repeat({columns}, {hexWidth * sideRatio +
       margin}px)"
-    style:grid-template-rows="repeat({rows}, {hexHeight() + margin}px)"
+    style:grid-template-rows="repeat({rows}, {hexHeight() / 2 + margin}px)"
   >
     {#each Array(rows) as _, y}
       {#each Array(columns) as _, x}
         <button
           on:click="{() => (selectedHex = { x, y })}"
-          class="hex relative transition-transform {isHex(x, y) &&
+          class="hex relative transition-transform h-full {isHex(x, y) &&
             'scale-125 z-10'}"
-          style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px"
+          style="grid-row: {(y + 1) * 2 - 1 + (x % 2)} / {(y + 1) * 2 +
+            1 +
+            (x % 2)};"
           style:width="{hexWidth}px"
+          on:dragover="{(event) => event.preventDefault()}"
+          on:drop="{() => {
+            if (isDraggingParty) {
+              party.x = x;
+              party.y = y;
+              // TODO: Persist
+              isDraggingParty = false;
+            }
+          }}"
         >
-          {#if data.party[0]?.x === x && data.party[0]?.y === y}
-            <img src="{data.party[0].imageUrl}" class="w-1/2" alt="party" />
+          <!-- style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px" -->
+          {#if party?.x === x && party?.y === y}
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+              on:dragstart="{() => (isDraggingParty = true)}"
+              on:dragend="{() => (isDraggingParty = false)}"
+              class="z-30 w-1/2 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 opacity-50"
+            >
+              <img src="/partyIcon.png" class="" alt="party" />
+            </div>
           {/if}
+
           {#if hexhashes.get({ x, y })}
             <img
               class:oddColum="{x % 2}"
@@ -194,14 +223,13 @@ const onChange = (
             <!-- Xsrc="{hexhashes.get({ x, y })?.imageUrl}" -->
           {:else}
             <div
-              class="{hexColor(x)} opacity-10"
+              class="{hexColor(x)} opacity-30"
               style="
               width: {hexWidth}px;
               margin: {margin}px {minWidth}px;
               height: {hexHeight()}px;
               margin-bottom: {margin}px;
-              clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-              "
+              clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);"
             ></div>
             <!-- margin-top: {x % 2 ? hexHeight() / 2 : 0}px; -->
             <!--
@@ -238,14 +266,7 @@ const onChange = (
 
 .hexGrid {
   display: grid;
-  grid-template-columns: repeat(
-    var(--columns),
-    calc(var(--size) - var(--spikeWidth))
-  );
-  grid-template-rows: repeat(
-    var(--rows),
-    calc(var(--size) * var(--ratio) + var(--m))
-  );
+
   font-size: 0; /* disable white space between inline block element */
 }
 

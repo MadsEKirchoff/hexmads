@@ -1,0 +1,250 @@
+{
+  "id": "b8df3f18-c67c-4f71-b8a6-1e5a0c6cb4ba",
+  "prevId": "16808607-ea56-4ed2-84c8-0b2d59f35027",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "biome": {
+      "name": "biome",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "hexGrid": {
+      "name": "hexGrid",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "width": {
+          "name": "width",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "height": {
+          "name": "height",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "backgroundImage": {
+          "name": "backgroundImage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "hexInstance": {
+      "name": "hexInstance",
+      "schema": "",
+      "columns": {
+        "x": {
+          "name": "x",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "y": {
+          "name": "y",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hexGrid": {
+          "name": "hexGrid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localImageUrl": {
+          "name": "localImageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "template": {
+          "name": "template",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hexInstance_hexGrid_hexGrid_id_fk": {
+          "name": "hexInstance_hexGrid_hexGrid_id_fk",
+          "tableFrom": "hexInstance",
+          "tableTo": "hexGrid",
+          "columnsFrom": [
+            "hexGrid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "hexInstance_template_hexTemplate_id_fk": {
+          "name": "hexInstance_template_hexTemplate_id_fk",
+          "tableFrom": "hexInstance",
+          "tableTo": "hexTemplate",
+          "columnsFrom": [
+            "template"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "hexTemplate": {
+      "name": "hexTemplate",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localImageUrl": {
+          "name": "localImageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "copies": {
+          "name": "copies",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "biome": {
+          "name": "biome",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hexTemplate_biome_biome_id_fk": {
+          "name": "hexTemplate_biome_biome_id_fk",
+          "tableFrom": "hexTemplate",
+          "tableTo": "biome",
+          "columnsFrom": [
+            "biome"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "party": {
+      "name": "party",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localImageUrl": {
+          "name": "localImageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "x": {
+          "name": "x",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "y": {
+          "name": "y",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

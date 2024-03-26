@@ -1,0 +1,1 @@
+ALTER TABLE "hexTemplate" ADD COLUMN "copies" integer;

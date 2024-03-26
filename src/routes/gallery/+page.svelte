@@ -1,13 +1,9 @@
 <script lang="ts">
 import { put, list, type ListBlobResult } from "@vercel/blob";
-// import Button from "$lib/Button.svelte";
 import { enhance } from "$app/forms";
 import { TrashBinOutline } from "flowbite-svelte-icons";
-import UploadIcon from "$lib/UploadIcon.svelte";
 import { ButtonGroup, Button, GradientButton } from "flowbite-svelte";
-import { fly, fade } from "svelte/transition";
 import { Spinner } from "flowbite-svelte";
-import { index } from "drizzle-orm/mysql-core";
 import { dev } from "$app/environment";
 
 export let data;
@@ -121,20 +117,17 @@ $: hexGroups = () =>
           Mulige filtyper: .png, .jpg, .gif, .mp4
         </p>
       </div>
-      <input
-        type="{!dev ? 'hidden' : ''}"
-        name="biome"
-        value="{biomeSelected?.id}"
       />
     </form>
   </div>
-  {hexGroups()?.length}
+  {dev ? "HexGroupsLength: " + hexGroups()?.length : ""}
   {#each hexGroups() as [biome, hexes] (biome)}
     <h2 class="mt-8 mb-6 text-xl font-semibold">{biome}</h2>
     {#each hexes as hex}
       <div
         class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-lg"
       >
+        {hex.imageUrl}
         <img src="{hex.imageUrl}" alt="hex" class="max-h-44" />
       </div>
     {/each}

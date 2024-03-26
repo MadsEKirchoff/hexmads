@@ -6,3 +6,4 @@ export async function load() {
     biome: await db.select().from(biome),
   }
 }
+
