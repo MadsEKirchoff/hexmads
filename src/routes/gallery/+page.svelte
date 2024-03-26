@@ -19,7 +19,7 @@ let uploading = false;
 
 let biomeSelected: (typeof data.biome)[number] | null;
 
-const confirmTime = 1400;
+const confirmTime = 600;
 let confirming = "";
 
 let timeout: number | null = null;
@@ -117,7 +117,6 @@ $: hexGroups = () =>
           Mulige filtyper: .png, .jpg, .gif, .mp4
         </p>
       </div>
-      />
     </form>
   </div>
   {dev ? "HexGroupsLength: " + hexGroups()?.length : ""}
@@ -144,7 +143,7 @@ $: hexGroups = () =>
           class="relative
           p-4 bg-white rounded-xl group border"
         >
-          {#if (blob.size < 1000 && index < 2) || shownBlobs[blob.url]}
+          {#if (blob.size < 100000 && index < 8) || shownBlobs[blob.url]}
             <img
               src="{blob.url}"
               alt="blob"
@@ -190,6 +189,28 @@ $: hexGroups = () =>
               size="lg"
               class="w-full mt-2">Vis billede</Button
             >
+
+            <button
+              class="bg-white/20 rounded-full w-full h-12 flex items-center justify-center opacity-80"
+              on:mousedown="{async (e) => {
+                debounceConfirm(blob.url, async () => {
+                  blobList.blobs = blobList.blobs.filter(
+                    (b) => b.url !== blob.url,
+                  );
+                  await fetch(`/blob`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(blob),
+                  });
+                });
+              }}"
+              on:mouseup="{() => (confirming = '')}"
+            >
+              <TrashBinOutline
+                class="rounded-full w-10 h-10 transition rotate-0 duration-[1.5s] visited:border-0 {confirming ===
+                  blob.url && 'rotate-[360deg] scale-150 text-red-500'}"
+              />
+            </button>
           {/if}
         </div>
       {/each}

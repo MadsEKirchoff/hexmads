@@ -3,6 +3,6 @@ export let data;
 </script>
 
 <section>Yup</section>
-{data}
+{JSON.stringify(data)}
 
 <style></style>

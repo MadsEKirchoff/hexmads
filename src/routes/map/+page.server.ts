@@ -3,6 +3,7 @@ import { error } from '@sveltejs/kit'
 import { biome, db, hexGrid, hexInstance, hexTemplate, party } from '../../schema.js'
 import { put } from '@vercel/blob'
 import { formBody } from "$lib/serverUtil"
+import { relations, type InferSelectModel, eq } from "drizzle-orm"
 
 export async function load({ locals }) {
 
@@ -11,41 +12,37 @@ export async function load({ locals }) {
     hexInstance: await db.select().from(hexInstance),
     party: await db.select().from(party),
     biome: await db.select().from(biome),
-    // test2: await sql`SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'`
   }
 }
 
-
 export const actions = {
-  uploadInstance: async ({ request }) => {
-    const form: FormData = await request.formData()
-    const formObj = formBody(form)
+  createHexInstance: async (event) => {
+    const form: FormData = await event.request.formData()
     const file = form.get('hex-image') as File
     if (!file) {
       error(400, { message: 'No file to upload.' })
     }
+
     const { url } = await put(file.name, file, {
       access: 'public',
       token: BLOB_READ_WRITE_TOKEN,
     })
 
-    console.log(`🚀 > uploadInstance: > file:`, file)
-    const hexInstance = {
-      x: formObj.x,
-      y: formObj.y,
-      hexGrid: formObj.hexGrid,
+    const id = form.get('id')
+    const hex = {
+      x: Number(form.get('x')),
+      y: Number(form.get('y')),
+      hexGrid: Number(form.get('hexGrid')),
       imageUrl: url,
-      localImageUrl: file.name,
+      localImageUrl: String(form.get('localImageUrl')),
     }
 
+    const existingId = Number(form.get('id'))
 
-    const grid = form.get('grid') as number | null
-    console.log(`🚀 > uploadInstance: > grid:`, grid)
-
-    if (biome) {
-      await db.insert(hexInstance).values(hexInstance).execute()
-    }
-
+    if (existingId)
+      await db.update(hexInstance).set(hex).where(eq(hexInstance.id, existingId)).execute()
+    else
+      await db.insert(hexInstance).values(hex).execute()
 
     return { uploaded: url }
   }

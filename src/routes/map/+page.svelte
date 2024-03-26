@@ -46,17 +46,24 @@ const heightRatio = 0.87;
 $: hexHeight = () => hexWidth * heightRatio;
 const sideRatio = 0.75;
 $: minWidth = () => sideRatio * hexWidth;
-let margin = 1;
+let margin = -1;
 
-const hexhashes = new Map();
-data.hexInstance.forEach((hex: any) => {
-  hexhashes.set({ x: hex.x, y: hex.y }, hex);
+let hexhashes: (typeof data.hexInstance)[] = [];
+$: data.hexInstance.forEach((hex) => {
+  if (!hexhashes[hex.x]) hexhashes[hex.x] = [];
+  hexhashes[hex.x][hex.y] = hex;
 });
+hexhashes = hexhashes;
+console.log(`🚀 > hexhashes:`, hexhashes);
+const getKey = (x: number, y: number) =>
+  `${x}-${y}` + (hexhashes[x]?.[y] ? hexhashes[x]?.[y]?.id : "");
 
 let biomeSelected: (typeof data.biome)[number] | null = null;
 
-let selectedHex: { x: number; y: number } | null = null;
-$: isHex = (x: number, y: number) =>
+let selectedHex:
+  | ({ x: number; y: number } & Partial<(typeof data.hexInstance)[number]>)
+  | null = null;
+$: isSelected = (x: number, y: number) =>
   selectedHex?.x === x && selectedHex?.y === y;
 
 let file: File | null = null;
@@ -64,13 +71,16 @@ const onChange = (
   event: Event & { currentTarget: EventTarget & HTMLInputElement },
 ) => {
   file = (event.target as HTMLInputElement)?.files?.[0] ?? null;
+  form?.dispatchEvent(new Event("submit", { bubbles: true }));
 };
 
 let party = data.party[0];
 let isDraggingParty = false;
+
+let hexGrid = data.hexGrid[0];
 </script>
 
-<section>
+<section class="bg-white">
   <!-- Top actions -->
   <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
     <Label>Margin:</Label>
@@ -89,7 +99,12 @@ let isDraggingParty = false;
 
   <!-- Actions -->
   <Popover
-    title="Hex handlinger, {selectedHex && prettyObject(selectedHex)}"
+    title="Hex handlinger, {selectedHex &&
+      prettyObject({
+        x: selectedHex.x,
+        y: selectedHex.y,
+        imageUrl: selectedHex.imageUrl?.substring(50),
+      })}"
     triggeredBy=".hex"
     trigger="click"
     class="z-50 {!selectedHex && 'hidden'}"
@@ -97,82 +112,93 @@ let isDraggingParty = false;
       if (!event.detail) selectedHex = null;
     }}"
   >
-    <div class="justify-center gap-4 flex-wrap flex flex-col items-center m-3">
-      <div>
-        <form
-          action="?/upload"
-          method="POST"
-          enctype="multipart/form-data"
-          bind:this="{form}"
-          use:enhance="{() => {
-            uploading = true;
-            return async ({ update }) => {
-              file = null;
-              update({ reset: true });
-              uploading = false;
-            };
-          }}"
-        >
-          <Button color="alternative" size="lg" disabled="!selectedHex">
-            Upload
-            <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
-            <input
-              id="hex-image"
-              name="hex-image"
-              type="file"
-              accept="image/*"
-              class="opacity-0 absolute"
-              on:change="{onChange}"
-            />
-          </Button>
-          <!-- <Button
+    {#if selectedHex}
+      <div
+        class="justify-center gap-4 flex-wrap flex flex-col items-center m-3"
+      >
+        <div>
+          <form
+            action="?/createHexInstance"
+            method="POST"
+            enctype="multipart/form-data"
+            bind:this="{form}"
+            use:enhance="{() => {
+              uploading = true;
+              return async ({ update }) => {
+                file = null;
+                await update({ reset: true });
+                uploading = false;
+                hexhashes = hexhashes;
+              };
+            }}"
+          >
+            <input type="hidden" name="id" value="{selectedHex.id}" />
+            <input type="hidden" name="x" value="{selectedHex.x}" />
+            <input type="hidden" name="y" value="{selectedHex.y}" />
+            <input type="hidden" name="hexGrid" value="{hexGrid.id}" />
+            <Button size="lg">
+              Upload
+              <Spinner size="6" class="ml-4 {!uploading ? 'hidden' : ''}" />
+              <input
+                id="hex-image"
+                name="hex-image"
+                type="file"
+                accept="image/*"
+                class="opacity-0 absolute"
+                on:change="{onChange}"
+              />
+            </Button>
+            <!-- <Button
               color="none"
               size="xs"
               class="ml-4 {!hexhashes.has(selectedHex) && 'hidden'}"
               >Slet</Button
             > -->
-        </form>
-      </div>
-      - eller -
-      <ButtonGroup
-        defaultClass="flex rounded-lg divide-x rtl:divide-x-reverse shadow mt-8 p-4"
-      >
-        {#each data.biome as bio}
-          <Button
-            color="{bio.color ?? 'red'}"
-            class="h-10 opacity-80 transition-transform {biomeSelected === bio
-              ? 'opacity-100 scale-110 z-10'
-              : ''}"
-            on:click="{() => (biomeSelected = bio)}">{bio.name}</Button
-          >
-        {/each}
-      </ButtonGroup>
+          </form>
+        </div>
+        - eller -
+        <ButtonGroup
+          defaultClass="flex rounded-lg divide-x rtl:divide-x-reverse shadow mt-8 p-4"
+        >
+          {#each data.biome as bio}
+            <Button
+              color="{bio.color ?? 'red'}"
+              class="h-10 opacity-80 transition-transform {biomeSelected === bio
+                ? 'opacity-100 scale-110 z-10'
+                : ''}"
+              on:click="{() => (biomeSelected = bio)}">{bio.name}</Button
+            >
+          {/each}
+        </ButtonGroup>
 
-      <div class="flex gap-2 mt-2">
-        <GradientButton
-          pill
-          disabled="{!biomeSelected}"
-          class="transition-color"
-          color="purpleToPink">Rando</GradientButton
-        >
-        <GradientButton
-          pill
-          disabled="{!biomeSelected}"
-          class="transition-color"
-          color="pinkToOrange">Rando 1/2</GradientButton
-        >
-        <GradientButton
-          pill
-          disabled="{!biomeSelected}"
-          class="transition-color"
-          color="tealToLime">Rando 1/3</GradientButton
-        >
+        <div class="flex gap-2 mt-2">
+          <GradientButton
+            pill
+            disabled="{!biomeSelected}"
+            class="transition-color"
+            color="purpleToPink">Rando</GradientButton
+          >
+          <GradientButton
+            pill
+            disabled="{!biomeSelected}"
+            class="transition-color"
+            color="pinkToOrange">Rando 1/2</GradientButton
+          >
+          <GradientButton
+            pill
+            disabled="{!biomeSelected}"
+            class="transition-color"
+            color="tealToLime">Rando 1/3</GradientButton
+          >
+        </div>
       </div>
-    </div>
+    {/if}
   </Popover>
 
   {#if dev}
-    <p class="text-[11px] text-gray-800">{JSON.stringify(data, null, 2)}</p>
+    <p class="text-[11px] text-gray-800">
+      {JSON.stringify(data.hexInstance, null, 2)}
+    </p>
   {/if}
 
   <!-- <section class="hexGrid hexGrid text-[0px]" style="--hexSize: {hexSize}px; --hexMargin: {hexMargin}px;"> -->
@@ -184,10 +210,11 @@ let isDraggingParty = false;
   >
     {#each Array(rows) as _, y}
       {#each Array(columns) as _, x}
+        {@const hexInst = hexhashes[x]?.[y]}
         <button
-          on:click="{() => (selectedHex = { x, y })}"
-          class="hex relative transition-transform h-full {isHex(x, y) &&
-            'scale-125 z-10'}"
+          on:click="{() => (selectedHex = { ...hexInst, x, y })}"
+          class="hex relative flex items-end justify-center transition-transform h-full
+          {isSelected(x, y) && 'scale-125 z-10'}"
           style="grid-row: {(y + 1) * 2 - 1 + (x % 2)} / {(y + 1) * 2 +
             1 +
             (x % 2)};"
@@ -198,27 +225,22 @@ let isDraggingParty = false;
               party.x = x;
               party.y = y;
               // TODO: Persist
+              fetch(`/party`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(party),
+              });
+
               isDraggingParty = false;
             }
           }}"
         >
-          <!-- style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px" -->
-          {#if party?.x === x && party?.y === y}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-              on:dragstart="{() => (isDraggingParty = true)}"
-              on:dragend="{() => (isDraggingParty = false)}"
-              class="z-30 w-1/2 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 opacity-50"
-            >
-              <img src="/partyIcon.png" class="" alt="party" />
-            </div>
-          {/if}
-
-          {#if hexhashes.get({ x, y })}
+          {#if hexInst}
             <img
-              class:oddColum="{x % 2}"
-              src="https://lzkv4zegmrmck0ot.public.blob.vercel-storage.com/hex-FwylBqjBXhYVbnA4iFE7c5GQHHvHeK.png"
-              alt="Blob"
+              src="{hexInst.imageUrl}"
+              class="w-full"
+              alt="hexImage"
+              style="clip-path: polygon(0 0, 100% 0, 100% 55%, 75% 100%, 25% 100%, 0% 55%);"
             />
             <!-- Xsrc="{hexhashes.get({ x, y })?.imageUrl}" -->
           {:else}
@@ -240,6 +262,18 @@ let isDraggingParty = false;
               {hexWidth - minWidth()}px 100%,
               {minWidth}px 100%,
             -->
+          {/if}
+
+          <!-- style:margin-top="{x % 2 ? (hexWidth * heightRatio) / 2 : 0}px" -->
+          {#if party?.x === x && party?.y === y}
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+              on:dragstart="{() => (isDraggingParty = true)}"
+              on:dragend="{() => (isDraggingParty = false)}"
+              class="z-30 w-1/2 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 opacity-80"
+            >
+              <img src="/partyIcon.png" class="" alt="party" />
+            </div>
           {/if}
         </button>
       {/each}

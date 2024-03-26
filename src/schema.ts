@@ -13,7 +13,7 @@ export const db = drizzle(sql)
 
 export type buttonColor = "red" | "yellow" | "green" | "purple" | "blue" | "light" | "dark" | "primary" | "none" | "alternative" | "none"
 
-const customcolor = customType<{ data: buttonColor | string }>({
+const customcolor = customType<{ data: buttonColor }>({
   dataType() {
     return 'text'
   },
@@ -28,10 +28,11 @@ export const hexGrid = pgTable("hexGrid", {
   backgroundImageUrl: text("backgroundImage"),
 })
 export const hexInstance = pgTable("hexInstance", {
+  id: serial("id").primaryKey(),
   x: integer("x").notNull(),
   y: integer("y").notNull(),
-  hexGrid: integer("hexGrid").references(() => hexGrid.id),
-  imageUrl: text("imageUrl").notNull(),
+  hexGrid: integer("hexGrid").notNull().references(() => hexGrid.id),
+  imageUrl: text("imageUrl"),
   localImageUrl: text("localImageUrl"),
   template: integer("template").references(() => hexTemplate.id)
 })
