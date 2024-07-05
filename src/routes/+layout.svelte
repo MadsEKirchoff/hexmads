@@ -9,6 +9,7 @@ import {
   DrawSquareOutline,
   MapPinAltSolid,
   FileImageOutline,
+  UserEditOutline,
 } from "flowbite-svelte-icons";
 import { dev } from "$app/environment";
 import { Alert } from "flowbite-svelte";
@@ -52,6 +53,15 @@ const loadPage = async (url: string) => {
         <FileImageOutline size="sm" />Hexgalleri
       </div>
     </TabItem>
+    <TabItem
+      open="{$page.url.pathname === '/charGen'}"
+      title="Profile"
+      on:click="{() => loadPage('/charGen')}"
+    >
+      <div slot="title" class="flex items-center gap-2">
+        <UserEditOutline size="sm" />Statsruller
+      </div>
+    </TabItem>
     {#if dev}
       <TabItem title="Seed" on:click="{() => loadPage('/seed')}">Seed</TabItem>
     {/if}
@@ -65,7 +75,7 @@ const loadPage = async (url: string) => {
     </div>
     <div class="relative">
       <div
-        class="absolute z-40 inset-0 min-h-screen min-w-screen bg-[#eaf0f0]"
+        class="absolute z-40 inset-0 min-h-screen min-w-screen"
         transition:fade
       ></div>
     </div>

@@ -80,19 +80,19 @@ let isDraggingParty = false;
 let hexGrid = data.hexGrid[0];
 </script>
 
-<section class="bg-white">
+<section class="">
   <!-- Top actions -->
-  <div class="absolute pl-6 z-20 top-4 left-0 flex items-center gap-x-4">
-    <Label>Margin:</Label>
+  <div class="pl-4 flex items-center gap-x-4">
+    <Label>Størrelse:</Label>
     <Range
       id="range1"
       min="20"
       max="250"
       bind:value="{hexWidth}"
-      class="w-30"
+      class="w-24"
     />
     {hexWidth}
-    <Label class="ml-8">Margin</Label>
+    <Label class="ml-8">Margin:</Label>
     <Range id="range2" min="-30" max="30" bind:value="{margin}" class="w-20" />
     {margin}
   </div>

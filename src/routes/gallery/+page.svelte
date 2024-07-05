@@ -57,9 +57,9 @@ $: hexGroups = () =>
   );
 </script>
 
-<main class="relative flex min-h-screen flex-col items-center">
+<main class="relative flex flex-col items-center">
   <div
-    class="flex flex-col items-center w-full max-w-xl p-8 mx-auto rounded-lg shadow-xl dark:bg-white/10 bg-white
+    class="flex flex-col items-center w-full max-w-xl p-8 mx-auto rounded-lg shadow-xl
      ring-1 ring-gray-900/5 backdrop-blur-lg"
   >
     <form
@@ -123,9 +123,7 @@ $: hexGroups = () =>
   {#each hexGroups() as [biome, hexes] (biome)}
     <h2 class="mt-8 mb-6 text-xl font-semibold">{biome}</h2>
     {#each hexes as hex}
-      <div
-        class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-lg"
-      >
+      <div class="flex flex-col items-center gap-2 p-4 rounded-xl shadow-lg">
         {hex.imageUrl}
         <img src="{hex.imageUrl}" alt="hex" class="max-h-44" />
       </div>
@@ -133,15 +131,15 @@ $: hexGroups = () =>
   {/each}
 
   <!-- ICONS: https://icon-sets.iconify.design/ -->
-  <h2 class="mt-8 mb-6 text-xl font-semibold">billeder</h2>
+  <h2 class="mt-8 mb-6 text-xl font-semibold">Billeder</h2>
   <div class="flex max-w-screen gap-4 flex-wrap juAndrestify-center px-8">
     {#await data.blobList}
       <p>Loading...</p>
     {:then blobList}
       {#each blobList.blobs as blob, index (blob.url)}
         <div
-          class="relative
-          p-4 bg-white rounded-xl group border"
+          class="relative bg-white shadow-lg
+          p-4 rounded-xl group border"
         >
           {#if (blob.size < 100000 && index < 8) || shownBlobs[blob.url]}
             <img
@@ -153,7 +151,7 @@ $: hexGroups = () =>
                 : 'opacity-100'}"
             />
             <div
-              class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-30 transition-opacity bg-white"
+              class="absolute p-4 top-0 left-0 right-0 bottom-0 opacity-0 group-hover:opacity-30 transition-opacity"
             ></div>
             <div
               class="absolute p-4 top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100"
