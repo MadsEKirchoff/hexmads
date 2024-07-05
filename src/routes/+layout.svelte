@@ -21,6 +21,8 @@ import { page } from "$app/stores";
 $page.url.pathname;
 let loading = false;
 
+export const ssr = false;
+
 const loadPage = async (url: string) => {
   loading = true;
   await goto(url);
@@ -30,7 +32,7 @@ const loadPage = async (url: string) => {
 
 <!-- https://ui.aceternity.com/components/tailwindcss-buttons -->
 <!-- <main class="relative min-h-screen h-full"> -->
-<main class="max-h-screen h-full overflow-hidden flex flex-col">
+<main class="max-h-screen h-full h-screen overflow-hidden flex flex-col">
   <Tabs style="underline" contentClass=" " class="justify-end bg-gray-500/20">
     <TabItem
       open="{$page.url.pathname === '/map'}"
@@ -66,7 +68,7 @@ const loadPage = async (url: string) => {
   </Tabs>
   {#if loading}
     <div
-      class="absolute z-50 left-0 right-0 top-0 bottom-0 flex justify-center items-center"
+      class="absolute z-50 bg-white left-0 right-0 top-0 bottom-0 flex justify-center items-center"
       transition:fade
     >
       <Spinner size="36" class="absolute z-50" />
